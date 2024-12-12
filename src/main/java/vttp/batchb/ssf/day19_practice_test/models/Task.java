@@ -5,8 +5,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +35,7 @@ public class Task {
     @Size(max = 255, message = "Maximum length is 255")
     private String description;
 
+    @DateTimeFormat(pattern = "E, MM/dd/yyyy")
     @FutureOrPresent(message = "Date must be equals to or greater than today")
     private Date dueDate;
     private String priority;
@@ -118,6 +126,27 @@ public class Task {
         this.updatedAt = updatedAt;
     }
 
+    public static Task toTask(String json){
+        JsonReader reader = Json.createReader(new StringReader(json));
+        JsonObject obj = reader.readObject();
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("E, MM/dd/yyyy");
+        Long epochmillisecondsdueDate = Long.parseLong(obj.getJsonNumber("due_date").toString());
+        Date dueDate = new Date(epochmillisecondsdueDate);
 
+        Long epochmillisecondscreatedDate = Long.parseLong(obj.getJsonNumber("created_at").toString());
+        Date createdDate = new Date(epochmillisecondscreatedDate);
+
+        Long epochmillisecondsupdatedDate = Long.parseLong(obj.getJsonNumber("updated_at").toString());
+        Date updatedDate = new Date(epochmillisecondsupdatedDate);
+
+        Task task = new Task(obj.getString("id"),
+        obj.getString("name"),
+        obj.getString("description"),
+        dueDate, obj.getString("priority_level"),
+        obj.getString("status"), createdDate, updatedDate);
+
+        return task;
+    }
 
 }

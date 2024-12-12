@@ -27,6 +27,8 @@ import jakarta.json.JsonReader;
 import vttp.batchb.ssf.day19_practice_test.models.Task;
 import vttp.batchb.ssf.day19_practice_test.repository.TaskRepository;
 
+import static vttp.batchb.ssf.day19_practice_test.models.Task.*;
+
 @Service
 public class TaskService {
 
@@ -89,5 +91,16 @@ public class TaskService {
 
     public void saveTask(Map<String, String> map){
         taskRepo.saveTask(map);
+    }
+
+    public List<Task> getTasks(String key){
+
+        List<Task> tasks = new LinkedList<>();
+
+        for (Object obj : taskRepo.getTasks(key)){
+            tasks.add(toTask(obj.toString()));
+        }
+
+        return tasks;
     }
 }
